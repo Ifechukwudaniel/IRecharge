@@ -1,0 +1,27 @@
+{
+  "name": "IRecharge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "engines": {
+    "node": "16.x"
+  },
+  "scripts": {
+    "start": "nodemon server.js",
+    "server": "nodemon server.js",
+    "dev": "nodemon server.js "
+  },
+  "author": "Ifechukwu Daniel",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "concurrently": "^7.0.0",
+    "dotenv": "^14.3.2",
+    "express": "^4.17.2",
+    "express-validator": "^6.14.2",
+    "joi": "^17.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.1.8",
+    "nodemon": "^2.0.15"
+  }
+}
