@@ -28,7 +28,18 @@ const getAllCustomers = async (req, res, next) => {
   }
 };
 
+const getCustomerById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let customer = await customerModel.findById(id);
+    return res.status(200).send(customer);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   create,
   getAllCustomers,
+  getCustomerById,
 };
