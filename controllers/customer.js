@@ -34,8 +34,16 @@ const getAllCustomers = async (req, res, next) => {
 const getCustomerById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    let customer = await customerModel.findById(id);
-    return res.status(200).send(customer);
+    let customer = await customerModel.findById(id).lean();
+    let oid = new objectId(id);
+    let customerPurchases = await purchaseModel
+      .find({ customerId: oid })
+      .lean();
+    let data = {
+      ...customer,
+      purchase: customerPurchases,
+    };
+    return res.status(200).send(data);
   } catch (error) {
     next(error);
   }
@@ -62,8 +70,6 @@ const chargeCustomer = async (req, res, next) => {
       tx_ref,
       enckey: process.env.FLW_ENCRYPTION_KEY,
     };
-
-    // console.log(amount, id, customer);
 
     const flw = new Flutterwave(
       process.env.FLW_PUBLIC_KEY,
