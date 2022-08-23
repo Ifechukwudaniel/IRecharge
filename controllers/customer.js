@@ -5,6 +5,10 @@ const objectId = mongoose.Types.ObjectId;
 const { v4: uuidv4 } = require("uuid");
 const purchaseModel = require("../model/purchaseModel");
 const Flutterwave = require("flutterwave-node-v3");
+const flw = new Flutterwave(
+  process.env.FLW_PUBLIC_KEY,
+  process.env.FLW_SECRET_KEY
+);
 
 const create = async (req, res, next) => {
   try {
@@ -49,11 +53,31 @@ const getCustomerById = async (req, res, next) => {
   }
 };
 
+const getCustomerPurchases = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let oid = new objectId(id);
+    let customerPurchases = await purchaseModel
+      .find({ customerId: oid })
+      .lean();
+    return res.status(200).send(customerPurchases);
+  } catch (error) {
+    next(error);
+  }
+};
+
 const chargeCustomer = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { amount, card_number, cvv, expiry_month, expiry_year, fullname } =
-      req.body;
+    const {
+      amount,
+      card_number,
+      cvv,
+      expiry_month,
+      expiry_year,
+      fullname,
+      pin,
+    } = req.body;
 
     let { email } = await customerModel.findById(id);
 
@@ -69,24 +93,44 @@ const chargeCustomer = async (req, res, next) => {
       fullname,
       tx_ref,
       enckey: process.env.FLW_ENCRYPTION_KEY,
+      authorization: {
+        mode: "pin",
+        pin,
+      },
     };
-
-    const flw = new Flutterwave(
-      process.env.FLW_PUBLIC_KEY,
-      process.env.FLW_SECRET_KEY
-    );
     let data = await flw.Charge.card(payload);
-    if (data.status !== "success") {
-      throw new APIError("Payment Error", data.message);
+    return res.send(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const validateCharge = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { otp, flw_ref } = req.body;
+
+    let { email } = await customerModel.findById(id);
+    const response = await flw.Charge.validate({
+      otp: otp,
+      flw_ref: flw_ref,
+    });
+    if (response.status !== "success") {
+      throw new APIError("Payment Error", response.message);
     } else {
+      let { amount } = response.data;
       let newPurchase = new purchaseModel({
         customerId: id,
         amount: amount,
       });
       await newPurchase.save();
+      return res.send({
+        status: "Success",
+        message: "Payment Was successful",
+      });
     }
-    return res.send(data);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
@@ -96,4 +140,6 @@ module.exports = {
   getAllCustomers,
   getCustomerById,
   chargeCustomer,
+  getCustomerPurchases,
+  validateCharge,
 };
