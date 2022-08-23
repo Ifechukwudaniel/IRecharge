@@ -1,12 +1,14 @@
 const mongoose = require("mongoose");
+const ObjectId = mongoose.Types.ObjectId;
 
 const purchaseSchema = new mongoose.Schema(
   {
     customerId: {
-      type: String,
+      type: ObjectId,
+      ref: "Customer",
       required: true,
     },
-    descriptions: {
+    amount: {
       type: String,
       required: true,
     },
