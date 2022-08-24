@@ -9,7 +9,7 @@ const errorMiddleWare = (err, req, res, next) => {
     next();
     return res.status(500).send({
       title: "User Error",
-      message: "This error happens when  result is not computed",
+      message: "This error happens when  is not computed",
     });
   }
 };
