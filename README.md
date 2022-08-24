@@ -31,10 +31,7 @@ _Below is an example of how you can instruct your audience on installing and set
 ## Usage
 
  1. After Installation run 
- 
+
     ```
       npm run dev 
     ``` 
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
