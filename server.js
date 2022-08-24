@@ -5,20 +5,22 @@ const path = require("path");
 const customerRoutes = require("./routes/customerRoute");
 const mongoose = require("mongoose");
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 const { notFoundMiddleWare } = require("./middleware/notFound");
 const { errorMiddleWare } = require("./middleware/Error");
+const port = process.env.PORT || 3000;
 
+app.get("/", (req, res) => {
+  res.json({ hope: "loop" });
+});
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use("/api/customers", customerRoutes);
 
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
 });
-
-const port = process.env.PORT || 3000;
 
 mongoose.connect(process.env.MONGO_URL, (err) => {
   if (err) {
@@ -42,3 +44,5 @@ app.listen(port, () => {
 app.use(errorMiddleWare);
 
 app.use(notFoundMiddleWare);
+
+module.exports = app;
